@@ -1,0 +1,12 @@
+<div class="columns" *ngIf="productList && user">
+  <ng-container *ngFor="let product of (productList | customSort:user.interests)">
+          <div class="product-tile column is-one-third">
+            <img src="{{ product.image }}" class="image"/>
+            <div class="level is-size-4 is-uppercase">
+                <span class="level-item">{{product.title}}</span>
+                <span class="level-item has-text-weight-bold">${{product.price}}</span>
+            </div>
+            <app-actions [product]="product"></app-actions>
+          </div>
+  </ng-container>
+</div>

@@ -15,4 +15,12 @@ export class FilterComponent implements OnInit {
   ngOnInit() {
     this.cosmicService.getCategories().subscribe(categories => (this.categoryList = categories));
   }
+
+  filter(category) {
+    category.selected = !category.selected;
+    const selection = this.categoryList.filter((category, index) => {
+      return category.selected;
+    });
+    console.log(selection);
+  }
 }

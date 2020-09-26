@@ -1,8 +1,8 @@
 <ul *ngFor="let category of categoryList">
   <li class="mb-3">
-    <label class="checkbox is-size-4">
-      <input type="checkbox">
-      {{category.title}}
+    <label class="checkbox is-size-4" >
+      <input type="checkbox" value="{{category.slug}}" [checked]="category.selected" (change)="filter(category)">
+      <span class="pl-2">{{category.title}}</span>
     </label>
   </li>
 </ul>

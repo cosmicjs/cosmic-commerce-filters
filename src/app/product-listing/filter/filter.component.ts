@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Category } from '@models/category';
 import { CosmicService } from 'src/app/core/_services/cosmic.service';
 
@@ -9,6 +9,7 @@ import { CosmicService } from 'src/app/core/_services/cosmic.service';
 })
 export class FilterComponent implements OnInit {
   public categoryList: Category[];
+  @Output() selectedFilters = new EventEmitter<string[]>();
 
   constructor(private cosmicService: CosmicService) {}
 
@@ -18,9 +19,14 @@ export class FilterComponent implements OnInit {
 
   filter(category) {
     category.selected = !category.selected;
-    const selection = this.categoryList.filter((category, index) => {
-      return category.selected;
-    });
-    console.log(selection);
+    let selection = [];
+
+    this.categoryList
+      .filter((category, index) => {
+        return category.selected;
+      })
+      .forEach(category => selection.push(category.slug));
+
+    this.selectedFilters.emit(selection);
   }
 }

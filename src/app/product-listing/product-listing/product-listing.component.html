@@ -1,6 +1,6 @@
 <div class="columns">
 <div class="column is-one-fifth filters">
-  <app-filter></app-filter>
+  <app-filter (selectedFilters)="onChangeFilters($event)"></app-filter>
 </div>
 <div class="column columns" *ngIf="productList && user">
   <ng-container *ngFor="let product of (productList | customSort:user.interests)">

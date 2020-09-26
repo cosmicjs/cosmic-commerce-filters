@@ -8,7 +8,7 @@ import { UserService } from './core/_services/user.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  title = 'Cosmic-Customization Commerce';
+  title = 'Cosmic-CommerceFilters';
 
   constructor(private userService: UserService) {}
 

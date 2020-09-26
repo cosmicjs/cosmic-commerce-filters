@@ -1,4 +1,8 @@
-<div class="columns" *ngIf="productList && user">
+<div class="columns">
+<div class="column is-one-quarter filters">
+  filters!
+</div>
+<div class="column columns" *ngIf="productList && user">
   <ng-container *ngFor="let product of (productList | customSort:user.interests)">
           <div class="product-tile column is-one-third">
             <img src="{{ product.image }}" class="image"/>
@@ -9,4 +13,5 @@
             <app-actions [product]="product"></app-actions>
           </div>
   </ng-container>
+</div>
 </div>

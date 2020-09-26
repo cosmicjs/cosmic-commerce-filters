@@ -29,6 +29,10 @@ export class CosmicService {
 
   private products$: Observable<Product[]>;
 
+  private categoriesUrl = this.objectTypePath + '/categories';
+
+  private categories$: Observable<Category[]>;
+
   getUser(slug: string): Observable<User> {
     const url = `${this.singleObjectUrl}/${slug}`;
     return this.http.get<User>(url).pipe(
@@ -70,6 +74,20 @@ export class CosmicService {
       );
     }
     return this.products$;
+  }
+
+  getCategories(): Observable<Category[]> {
+    if (!this.categories$) {
+      this.categories$ = this.http.get<Category[]>(this.categoriesUrl).pipe(
+        tap(_ => console.log('fetched categories')),
+        map(_ => {
+          return _['objects'].map(element => new Category(element));
+        }),
+        shareReplay(1),
+        catchError(this.handleError('getCategory', []))
+      );
+    }
+    return this.categories$;
   }
 
   /**

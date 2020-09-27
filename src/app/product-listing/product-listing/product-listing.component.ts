@@ -19,10 +19,9 @@ export class ProductListingComponent implements OnInit {
     this.userService.user$.subscribe(user => {
       this.user = user;
     });
-    this.cosmicService.getProducts().subscribe(products => (this.productList = products));
   }
 
   onChangeFilters(selectedFilters: string[]) {
-    console.log(selectedFilters);
+    this.cosmicService.getProducts(selectedFilters).subscribe(products => (this.productList = products));
   }
 }

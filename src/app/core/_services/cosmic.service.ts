@@ -24,8 +24,10 @@ export class CosmicService {
 
   private singleObjectUrl = this.commonPath + '/object';
   private singleObjectByIdUrl = this.commonPath + '/object-by-id';
+  private multipleObjectsUrl = this.commonPath + '/objects';
 
   private productsUrl = this.objectTypePath + '/products';
+  private productObjectsUrl = this.multipleObjectsUrl + '?type=products';
 
   private products$: Observable<Product[]>;
 
@@ -62,17 +64,28 @@ export class CosmicService {
     );
   }
 
-  getProducts(): Observable<Product[]> {
-    if (!this.products$) {
-      this.products$ = this.http.get<Product[]>(this.productsUrl + '?sort=random').pipe(
-        tap(_ => console.log('fetched products')),
-        map(_ => {
-          return _['objects'].map(element => new Product(element));
-        }),
-        shareReplay(1),
-        catchError(this.handleError('getProducts', []))
-      );
-    }
+  getProducts(query?: string[]): Observable<Product[]> {
+    //if (!this.products$) { DISABLED, NEED TO TAKE QUERY INTO ACCOUNT FOR CACHE
+    const querystring = query
+      ? '&query=' +
+        encodeURIComponent(
+          JSON.stringify({
+            'metadata.categories': {
+              $in: query
+            }
+          })
+        )
+      : '';
+    console.log(this.productObjectsUrl + '&sort=random' + querystring);
+    this.products$ = this.http.get<Product[]>(this.productObjectsUrl + '&sort=random' + querystring).pipe(
+      tap(_ => console.log('fetched products')),
+      map(_ => {
+        return _['objects'].map(element => new Product(element));
+      }),
+      shareReplay(1),
+      catchError(this.handleError('getProducts', []))
+    );
+    //}
     return this.products$;
   }
 

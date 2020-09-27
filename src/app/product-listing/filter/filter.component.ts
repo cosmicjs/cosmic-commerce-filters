@@ -14,18 +14,25 @@ export class FilterComponent implements OnInit {
   constructor(private cosmicService: CosmicService) {}
 
   ngOnInit() {
-    this.cosmicService.getCategories().subscribe(categories => (this.categoryList = categories));
+    this.cosmicService.getCategories().subscribe(categories => {
+      this.categoryList = categories;
+      this.updateSelectedFilters();
+    });
   }
 
   filter(category) {
     category.selected = !category.selected;
+    this.updateSelectedFilters();
+  }
+
+  updateSelectedFilters() {
     let selection = [];
 
     this.categoryList
       .filter((category, index) => {
         return category.selected;
       })
-      .forEach(category => selection.push(category.slug));
+      .forEach(category => selection.push(category._id));
 
     this.selectedFilters.emit(selection);
   }

@@ -29,7 +29,7 @@ export class CosmicService {
   private productsUrl = this.objectTypePath + '/products';
   private productObjectsUrl = this.multipleObjectsUrl + '?type=products';
 
-  private products$: Observable<Product[]>;
+  private products$ = new Map<string, Observable<Product[]>>();
 
   private categoriesUrl = this.objectTypePath + '/categories';
 
@@ -64,29 +64,36 @@ export class CosmicService {
     );
   }
 
-  getProducts(query?: string[]): Observable<Product[]> {
-    //if (!this.products$) { DISABLED, NEED TO TAKE QUERY INTO ACCOUNT FOR CACHE
-    const querystring = query
-      ? '&query=' +
-        encodeURIComponent(
-          JSON.stringify({
-            'metadata.categories': {
-              $in: query
-            }
-          })
-        )
-      : '';
-    console.log(this.productObjectsUrl + '&sort=random' + querystring);
-    this.products$ = this.http.get<Product[]>(this.productObjectsUrl + '&sort=random' + querystring).pipe(
-      tap(_ => console.log('fetched products')),
-      map(_ => {
-        return _['objects'].map(element => new Product(element));
-      }),
-      shareReplay(1),
-      catchError(this.handleError('getProducts', []))
-    );
-    //}
-    return this.products$;
+  getProducts(): Observable<Product[]> {
+    if (!this.products$.get('')) {
+      const response = this.http.get<Product[]>(this.productsUrl + '?sort=random').pipe(
+        tap(_ => console.log('fetched products')),
+        map(_ => {
+          return _['objects'].map(element => new Product(element));
+        }),
+        shareReplay(1),
+        catchError(this.handleError('getProducts', []))
+      );
+      this.products$.set('', response);
+    }
+    return this.products$.get('');
+  }
+
+  getProductsByQuery(query?: string): Observable<Product[]> {
+    if (!this.products$.get(query)) {
+      const querystring = query ? '&query=' + query : '';
+
+      const response = this.http.get<Product[]>(this.productObjectsUrl + '&sort=random' + querystring).pipe(
+        tap(_ => console.log('fetched products', _)),
+        map(_ => {
+          return _['objects'].map(element => new Product(element));
+        }),
+        shareReplay(1),
+        catchError(this.handleError('getProducts', []))
+      );
+      this.products$.set(query, response);
+    }
+    return this.products$.get(query);
   }
 
   getCategories(): Observable<Category[]> {

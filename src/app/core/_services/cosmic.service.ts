@@ -84,7 +84,7 @@ export class CosmicService {
       const querystring = query ? '&query=' + query : '';
 
       const response = this.http.get<Product[]>(this.productObjectsUrl + '&sort=random' + querystring).pipe(
-        tap(_ => console.log('fetched products', _)),
+        tap(_ => console.log('fetched products')),
         map(_ => {
           return _['objects'].map(element => new Product(element));
         }),

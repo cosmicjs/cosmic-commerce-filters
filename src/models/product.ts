@@ -7,6 +7,7 @@ export class Product {
   price: string;
   categories: Category[];
   image: string;
+  color: string;
 
   constructor(obj) {
     this._id = obj._id;
@@ -14,6 +15,7 @@ export class Product {
     this.title = obj.title;
     this.price = obj.metadata.price;
     this.image = obj.metadata.image.url;
+    this.color = obj.metadata.color;
     this.categories = [];
 
     if (obj.metadata && obj.metadata.categories) {

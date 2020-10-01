@@ -1,1 +1,9 @@
 input:checked + span { font-weight: bold; }
+
+.color-item {
+  border: 1px solid #dbdbdb;
+  border-radius: 4px;
+  display: inline-table;
+  margin: 2px 8px;
+  padding: 2px 40px 4px 10px;
+}

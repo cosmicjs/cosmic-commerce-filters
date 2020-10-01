@@ -1,8 +1,33 @@
-<ul *ngFor="let category of categoryList">
-  <li class="mb-3">
-    <label class="checkbox is-size-4" >
-      <input type="checkbox" value="{{category.slug}}" [checked]="category.selected" (change)="filter(category)">
+<ul>
+  <li class="mb-3" *ngFor="let category of rootCategoryList">
+    <label class="radio is-size-4" >
+      <input type="radio" name="rootCategory" (change)="filterRootCategory(category)">
       <span class="pl-2">{{category.title}}</span>
     </label>
   </li>
+<li class="mb-3">
+  <label class="radio is-size-4" >
+    <input type="radio" name="rootCategory" (change)="filterRootCategory()" checked>
+    <span class="pl-2">All</span>
+  </label>
+</li>
+</ul>
+<hr/>
+<ul>
+  <li class="mb-3" *ngFor="let category of categoryList">
+    <label class="checkbox is-size-4" >
+      <input type="checkbox" value="{{category.slug}}" [checked]="category.selected" (change)="filterCategory(category)">
+      <span class="pl-2">{{category.title}}</span>
+    </label>
+  </li>
+</ul>
+<hr/>
+<ul>
+  <ng-container *ngFor="let color of colorList | keyvalue">
+  <li class="mb-3 color-item" [style.background-color]="'#' + color.key">
+      <label class="checkbox is-size-4">
+        <input type="checkbox" value="{{color.key}}" [checked]="color.value" (change)="filterColor(color)">
+      </label>
+    </li>
+  </ng-container>
 </ul>

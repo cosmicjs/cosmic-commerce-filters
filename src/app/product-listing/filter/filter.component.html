@@ -23,11 +23,10 @@
 </ul>
 <hr/>
 <ul>
-  <ng-container *ngFor="let color of colorList | keyvalue">
-  <li class="mb-3 color-item" [style.background-color]="'#' + color.key">
+  <li class="mb-3 color-item" *ngFor="let color of colorList | keyvalue">
       <label class="checkbox is-size-4">
         <input type="checkbox" value="{{color.key}}" [checked]="color.value" (change)="filterColor(color)">
+        <span [style.background-color]="color.key"></span>
       </label>
     </li>
-  </ng-container>
 </ul>

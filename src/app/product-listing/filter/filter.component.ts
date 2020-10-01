@@ -39,8 +39,8 @@ export class FilterComponent implements OnInit {
   }
 
   updateSelectedFilters() {
-    let catInSelection = [];
-    let catNotInSelection = [];
+    let catInSelection: string[] = [];
+    let catNotInSelection: string[] = [];
 
     this.sortCategoryFilterSelection(this.rootCategoryList, catInSelection, catNotInSelection);
     this.sortCategoryFilterSelection(this.categoryList, catInSelection, catNotInSelection);
@@ -78,15 +78,14 @@ export class FilterComponent implements OnInit {
     this.updateSelectedFilters();
   }
 
-  filterColor(color) {
-    //Como defino q es un par de valores?
+  filterColor(color: { key: string; value: boolean }) {
     this.colorList.set(color.key, !color.value);
     this.updateSelectedFilters();
   }
 
   ///////////
 
-  sortCategoryFilterSelection(collection, inList, ninList) {
+  sortCategoryFilterSelection(collection: Category[], inList: string[], ninList: string[]) {
     collection.forEach(category => {
       if (category.selected) {
         inList.push(category._id);

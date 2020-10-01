@@ -1,9 +1,22 @@
 input:checked + span { font-weight: bold; }
 
 .color-item {
-  border: 1px solid #dbdbdb;
-  border-radius: 4px;
   display: inline-table;
-  margin: 2px 8px;
-  padding: 2px 40px 4px 10px;
+
+  input {
+    display: none;
+
+    &:checked + span {
+      border: 2px solid #000;
+    }
+
+    & + span {
+      border: 1px solid #dbdbdb;
+      border-radius: 4px;
+      display: block;
+      height: 30px;
+      margin-right: 10px;
+      width: 30px;
+    }
+  }
 }

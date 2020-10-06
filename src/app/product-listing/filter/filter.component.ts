@@ -11,8 +11,8 @@ import { CosmicService } from 'src/app/core/_services/cosmic.service';
   styleUrls: ['./filter.component.scss']
 })
 export class FilterComponent implements OnInit {
-  public rootCategoryList: Category[] = [];
-  public categoryList: Category[] = [];
+  public rootCategoryList: Map<Category, boolean> = new Map<Category, boolean>();
+  public categoryList: Map<Category, boolean> = new Map<Category, boolean>();
   public colorList: Map<string, boolean> = new Map<string, boolean>();
 
   @Output() selectedFilters = new EventEmitter<string>();
@@ -24,82 +24,98 @@ export class FilterComponent implements OnInit {
     /*hay que usar props para reducir las peticiones
      */
     forkJoin(this.cosmicService.getCategories(), this.cosmicService.getProducts()).subscribe(([categories, products]) => {
+      // categories
       categories.forEach(cat => {
-        cat.isRoot ? this.rootCategoryList.push(cat) : this.categoryList.push(cat);
+        cat.isRoot ? this.rootCategoryList.set(cat, false) : this.categoryList.set(cat, false);
       });
 
-      let colorSet = new Set<string>();
-      products.forEach(p => colorSet.add(p.color)); // Using a Set will automatically discard repeated colors
+      // colors
+
+      let colorSet = new Set<string>(); // Using a Set will automatically discard repeated colors
+      products.forEach(p => colorSet.add(p.color));
       colorSet.forEach(c => {
-        this.colorList.set(c, true);
+        this.colorList.set(c, false);
       });
 
       this.updateSelectedFilters();
     });
   }
 
+  ///////////
+
+  filterRootCategory(entry?: { key: Category; value: boolean }) {
+    this.rootCategoryList.set(entry.key, !entry.value);
+    this.updateSelectedFilters();
+  }
+
+  filterCategory(entry: { key: Category; value: boolean }) {
+    this.categoryList.set(entry.key, !entry.value);
+    this.updateSelectedFilters();
+  }
+
+  filterColor(entry: { key: string; value: boolean }) {
+    this.colorList.set(entry.key, !entry.value);
+    this.updateSelectedFilters();
+  }
+
+  ///////////
+
+  setCategoryFilterSelection(collection: Map<Category, boolean>, catInSelection: string[], catNotInSelection: string[]) {
+    let inList: string[] = [];
+    let ninList: string[] = [];
+    collection.forEach((selected, category) => {
+      if (selected) {
+        inList.push(category._id);
+      } else {
+        ninList.push(category._id);
+      }
+    });
+
+    /**
+     * Only push elements if not all categories are either selected or unselected,
+     * in that case we don't need filtering anything
+     */
+    if (inList.length !== 0 && ninList.length !== 0) {
+      catInSelection.push(...inList);
+      catNotInSelection.push(...ninList);
+    }
+  }
+
+  setColorFilterSelection(collection: Map<string, boolean>): string[] {
+    let inList = [];
+    collection.forEach((value: boolean, key: string) => {
+      if (value === true) inList.push(key);
+    });
+    return inList;
+  }
+
+  ///////////
+
   updateSelectedFilters() {
+    // categories
     let catInSelection: string[] = [];
     let catNotInSelection: string[] = [];
 
-    this.sortCategoryFilterSelection(this.rootCategoryList, catInSelection, catNotInSelection);
-    this.sortCategoryFilterSelection(this.categoryList, catInSelection, catNotInSelection);
+    this.setCategoryFilterSelection(this.categoryList, catInSelection, catNotInSelection);
+    this.setCategoryFilterSelection(this.rootCategoryList, catInSelection, catNotInSelection);
 
-    let colorInSelection = this.sortColorFilterSelection(this.colorList);
+    // colors
 
-    let jsonObj = {
-      'metadata.categories': {
+    let colorInSelection = this.setColorFilterSelection(this.colorList);
+
+    // query
+    let jsonObj = {};
+    if (catInSelection.length > 0 && catNotInSelection.length > 0) {
+      jsonObj['metadata.categories'] = {
         $in: catInSelection,
         $nin: catNotInSelection
-      }
-    };
-
+      };
+    }
     if (colorInSelection.length > 0) {
       jsonObj['metadata.color'] = { $in: colorInSelection };
     }
 
     const query = encodeURIComponent(JSON.stringify(jsonObj));
     this.selectedFilters.emit(query);
-  }
-
-  ///////////
-
-  filterRootCategory(category?: Category) {
-    if (category) {
-      this.rootCategoryList.forEach(cat => (cat.selected = cat === category ? true : false));
-    } else {
-      this.rootCategoryList.forEach(cat => (cat.selected = true));
-    }
-    this.updateSelectedFilters();
-  }
-
-  filterCategory(category: Category) {
-    category.selected = !category.selected;
-    this.updateSelectedFilters();
-  }
-
-  filterColor(color: { key: string; value: boolean }) {
-    this.colorList.set(color.key, !color.value);
-    this.updateSelectedFilters();
-  }
-
-  ///////////
-
-  sortCategoryFilterSelection(collection: Category[], inList: string[], ninList: string[]) {
-    collection.forEach(category => {
-      if (category.selected) {
-        inList.push(category._id);
-      } else {
-        ninList.push(category._id);
-      }
-    });
-  }
-
-  sortColorFilterSelection(collection: Map<string, boolean>): string[] {
-    let inList = [];
-    collection.forEach((value: boolean, key: string) => {
-      if (value === true) inList.push(key);
-    });
-    return inList;
   }
 }

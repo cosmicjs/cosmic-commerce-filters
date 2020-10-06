@@ -1,23 +1,17 @@
 <ul>
-  <li class="mb-3" *ngFor="let category of rootCategoryList">
+  <li class="mb-3" *ngFor="let category of rootCategoryList | keyvalue">
     <label class="radio is-size-4" >
-      <input type="radio" name="rootCategory" (change)="filterRootCategory(category)">
-      <span class="pl-2">{{category.title}}</span>
+      <input type="checkbox" value="{{category.key.slug}}" [checked]="category.value" (change)="filterRootCategory(category)">
+      <span class="pl-2">{{category.key.title}}</span>
     </label>
   </li>
-<li class="mb-3">
-  <label class="radio is-size-4" >
-    <input type="radio" name="rootCategory" (change)="filterRootCategory()" checked>
-    <span class="pl-2">All</span>
-  </label>
-</li>
 </ul>
 <hr/>
 <ul>
-  <li class="mb-3" *ngFor="let category of categoryList">
+  <li class="mb-3" *ngFor="let category of categoryList | keyvalue">
     <label class="checkbox is-size-4" >
-      <input type="checkbox" value="{{category.slug}}" [checked]="category.selected" (change)="filterCategory(category)">
-      <span class="pl-2">{{category.title}}</span>
+      <input type="checkbox" value="{{category.key.slug}}" [checked]="category.value" (change)="filterCategory(category)">
+      <span class="pl-2">{{category.key.title}}</span>
     </label>
   </li>
 </ul>

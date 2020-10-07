@@ -1,6 +1,5 @@
-import { NoopAnimationStyleNormalizer } from '@angular/animations/browser/src/dsl/style_normalization/animation_style_normalizer';
-import { not } from '@angular/compiler/src/output/output_ast';
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { forEach } from '@angular/router/src/utils/collection';
 import { Category } from '@models/category';
 import { forkJoin } from 'rxjs';
 import { CosmicService } from 'src/app/core/_services/cosmic.service';
@@ -14,6 +13,7 @@ export class FilterComponent implements OnInit {
   public rootCategoryList: Map<Category, boolean> = new Map<Category, boolean>();
   public categoryList: Map<Category, boolean> = new Map<Category, boolean>();
   public colorList: Map<string, boolean> = new Map<string, boolean>();
+  public priceList: Map<string, boolean> = new Map<string, boolean>();
 
   @Output() selectedFilters = new EventEmitter<string>();
 
@@ -37,6 +37,11 @@ export class FilterComponent implements OnInit {
         this.colorList.set(c, false);
       });
 
+      // prices (hardcoded for convenience, could be a category-level setting)
+      this.priceList.set('$0 to $49', false);
+      this.priceList.set('$50 to $99', false);
+      this.priceList.set('$100 to $200', false);
+
       this.updateSelectedFilters();
     });
   }
@@ -55,6 +60,11 @@ export class FilterComponent implements OnInit {
 
   filterColor(entry: { key: string; value: boolean }) {
     this.colorList.set(entry.key, !entry.value);
+    this.updateSelectedFilters();
+  }
+
+  filterPrice(entry: { key: string; value: boolean }) {
+    this.priceList.set(entry.key, !entry.value);
     this.updateSelectedFilters();
   }
 
@@ -89,6 +99,21 @@ export class FilterComponent implements OnInit {
     return inList;
   }
 
+  setPriceFilterSelection(collection: Map<string, boolean>): number[][] {
+    let inList: number[][] = [];
+
+    collection.forEach((value: boolean, key: String) => {
+      if (value === true) {
+        const range = [...key.match(/\d+/g)].map(v => {
+          return Number(v);
+        });
+        inList.push(range);
+      }
+    });
+
+    return inList;
+  }
+
   ///////////
 
   updateSelectedFilters() {
@@ -101,7 +126,10 @@ export class FilterComponent implements OnInit {
 
     // colors
 
-    let colorInSelection = this.setColorFilterSelection(this.colorList);
+    let colorInSelection: string[] = this.setColorFilterSelection(this.colorList);
+
+    // price
+    let pricesInSelection: number[][] = this.setPriceFilterSelection(this.priceList);
 
     // query
     let jsonObj = {};
@@ -113,6 +141,26 @@ export class FilterComponent implements OnInit {
     }
     if (colorInSelection.length > 0) {
       jsonObj['metadata.color'] = { $in: colorInSelection };
+    }
+
+    if (pricesInSelection.length > 0) {
+      jsonObj['$or'] = [];
+      pricesInSelection.forEach(price => {
+        jsonObj['$or'].push({
+          $and: [
+            {
+              'metadata.price': {
+                $gte: price[0]
+              }
+            },
+            {
+              'metadata.price': {
+                $lte: price[1]
+              }
+            }
+          ]
+        });
+      });
     }
 
     const query = encodeURIComponent(JSON.stringify(jsonObj));

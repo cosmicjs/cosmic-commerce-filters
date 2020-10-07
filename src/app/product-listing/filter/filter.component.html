@@ -24,3 +24,12 @@
       </label>
     </li>
 </ul>
+<hr/>
+<ul>
+  <li class="mb-3" *ngFor="let price of priceList | keyvalue">
+    <label class="checkbox is-size-4" >
+      <input type="checkbox" value="{{price.key}}" [checked]="price.value" (change)="filterPrice(price)">
+      <span class="pl-2">{{price.key}}</span>
+    </label>
+  </li>
+</ul>

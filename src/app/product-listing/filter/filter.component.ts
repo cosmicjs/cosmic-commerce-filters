@@ -1,6 +1,7 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { forEach } from '@angular/router/src/utils/collection';
 import { Category } from '@models/category';
+import { PriceFilter } from '@models/price-filter';
 import { forkJoin } from 'rxjs';
 import { CosmicService } from 'src/app/core/_services/cosmic.service';
 
@@ -13,7 +14,7 @@ export class FilterComponent implements OnInit {
   public rootCategoryList: Map<Category, boolean> = new Map<Category, boolean>();
   public categoryList: Map<Category, boolean> = new Map<Category, boolean>();
   public colorList: Map<string, boolean> = new Map<string, boolean>();
-  public priceList: Map<string, boolean> = new Map<string, boolean>();
+  public priceList: Map<PriceFilter, boolean> = new Map<PriceFilter, boolean>();
 
   @Output() selectedFilters = new EventEmitter<string>();
 
@@ -23,27 +24,27 @@ export class FilterComponent implements OnInit {
     /** */
     /*hay que usar props para reducir las peticiones
      */
-    forkJoin(this.cosmicService.getCategories(), this.cosmicService.getProducts()).subscribe(([categories, products]) => {
-      // categories
-      categories.forEach(cat => {
-        cat.isRoot ? this.rootCategoryList.set(cat, false) : this.categoryList.set(cat, false);
-      });
+    forkJoin(this.cosmicService.getCategories(), this.cosmicService.getProducts(), this.cosmicService.getPriceFilters()).subscribe(
+      ([categories, products, priceFilters]) => {
+        // categories
+        categories.forEach(cat => {
+          cat.isRoot ? this.rootCategoryList.set(cat, false) : this.categoryList.set(cat, false);
+        });
 
-      // colors
+        // colors
 
-      let colorSet = new Set<string>(); // Using a Set will automatically discard repeated colors
-      products.forEach(p => colorSet.add(p.color));
-      colorSet.forEach(c => {
-        this.colorList.set(c, false);
-      });
+        let colorSet = new Set<string>(); // Using a Set will automatically discard repeated colors
+        products.forEach(p => colorSet.add(p.color));
+        colorSet.forEach(c => {
+          this.colorList.set(c, false);
+        });
 
-      // prices (hardcoded for convenience, could/should be a setting in the CMS)
-      this.priceList.set('$0 to $49', false);
-      this.priceList.set('$50 to $99', false);
-      this.priceList.set('$100 to $200', false);
+        // prices
+        priceFilters.forEach(pf => this.priceList.set(pf, false));
 
-      this.updateSelectedFilters();
-    });
+        this.updateSelectedFilters();
+      }
+    );
   }
 
   ///////////
@@ -63,7 +64,7 @@ export class FilterComponent implements OnInit {
     this.updateSelectedFilters();
   }
 
-  filterPrice(entry: { key: string; value: boolean }) {
+  filterPrice(entry: { key: PriceFilter; value: boolean }) {
     this.priceList.set(entry.key, !entry.value);
     this.updateSelectedFilters();
   }
@@ -99,14 +100,12 @@ export class FilterComponent implements OnInit {
     return inList;
   }
 
-  setPriceFilterSelection(collection: Map<string, boolean>): number[][] {
+  setPriceFilterSelection(collection: Map<PriceFilter, boolean>): number[][] {
     let inList: number[][] = [];
 
-    collection.forEach((value: boolean, key: String) => {
+    collection.forEach((value: boolean, key: PriceFilter) => {
       if (value === true) {
-        const range = [...key.match(/\d+/g)].map(v => {
-          return Number(v);
-        });
+        const range = [key.min, key.max];
         inList.push(range);
       }
     });

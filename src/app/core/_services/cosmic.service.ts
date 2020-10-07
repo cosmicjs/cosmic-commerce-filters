@@ -7,6 +7,7 @@ import { environment } from '@environments/environment';
 import { Category } from '@models/category';
 import { User } from '@models/user';
 import { Product } from '@models/product';
+import { PriceFilter } from '@models/price-filter';
 
 /**
  * A service to get data from CosmicJS.
@@ -34,6 +35,10 @@ export class CosmicService {
   private categoriesUrl = this.objectTypePath + '/categories';
 
   private categories$: Observable<Category[]>;
+
+  private priceFiltersUrl = this.objectTypePath + '/pricefilters';
+
+  private priceFilters$: Observable<PriceFilter[]>;
 
   getUser(slug: string): Observable<User> {
     const url = `${this.singleObjectUrl}/${slug}`;
@@ -108,6 +113,20 @@ export class CosmicService {
       );
     }
     return this.categories$;
+  }
+
+  getPriceFilters(): Observable<PriceFilter[]> {
+    if (!this.priceFilters$) {
+      this.priceFilters$ = this.http.get<PriceFilter[]>(this.priceFiltersUrl).pipe(
+        tap(_ => console.log('fetched price filters')),
+        map(_ => {
+          return _['objects'].map(element => new PriceFilter(element));
+        }),
+        shareReplay(1),
+        catchError(this.handleError('getPriceFilters', []))
+      );
+    }
+    return this.priceFilters$;
   }
 
   /**

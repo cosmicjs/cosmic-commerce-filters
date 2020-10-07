@@ -37,7 +37,7 @@ export class FilterComponent implements OnInit {
         this.colorList.set(c, false);
       });
 
-      // prices (hardcoded for convenience, could be a category-level setting)
+      // prices (hardcoded for convenience, could/should be a setting in the CMS)
       this.priceList.set('$0 to $49', false);
       this.priceList.set('$50 to $99', false);
       this.priceList.set('$100 to $200', false);
@@ -165,5 +165,10 @@ export class FilterComponent implements OnInit {
 
     const query = encodeURIComponent(JSON.stringify(jsonObj));
     this.selectedFilters.emit(query);
+  }
+
+  /** just something to avoid alphabetical ordering of the priceList collection */
+  returnZero() {
+    return 0;
   }
 }

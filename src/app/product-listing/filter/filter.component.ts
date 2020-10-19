@@ -33,7 +33,7 @@ export class FilterComponent implements OnInit {
 
         // colors
 
-        let colorSet = new Set<string>(); // Using a Set will automatically discard repeated colors
+        const colorSet = new Set<string>(); // Using a Set will automatically discard repeated colors
         products.forEach(p => colorSet.add(p.color));
         colorSet.forEach(c => {
           this.colorList.set(c, false);
@@ -72,8 +72,8 @@ export class FilterComponent implements OnInit {
   ///////////
 
   setCategoryFilterSelection(collection: Map<Category, boolean>, catInSelection: string[], catNotInSelection: string[]) {
-    let inList: string[] = [];
-    let ninList: string[] = [];
+    const inList: string[] = [];
+    const ninList: string[] = [];
     collection.forEach((selected, category) => {
       if (selected) {
         inList.push(category._id);
@@ -93,15 +93,17 @@ export class FilterComponent implements OnInit {
   }
 
   setColorFilterSelection(collection: Map<string, boolean>): string[] {
-    let inList = [];
+    const inList = [];
     collection.forEach((value: boolean, key: string) => {
-      if (value === true) inList.push(key);
+      if (value === true) {
+        inList.push(key);
+      }
     });
     return inList;
   }
 
   setPriceFilterSelection(collection: Map<PriceFilter, boolean>): number[][] {
-    let inList: number[][] = [];
+    const inList: number[][] = [];
 
     collection.forEach((value: boolean, key: PriceFilter) => {
       if (value === true) {
@@ -117,18 +119,18 @@ export class FilterComponent implements OnInit {
 
   updateSelectedFilters() {
     // categories
-    let catInSelection: string[] = [];
-    let catNotInSelection: string[] = [];
+    const catInSelection: string[] = [];
+    const catNotInSelection: string[] = [];
 
     this.setCategoryFilterSelection(this.categoryList, catInSelection, catNotInSelection);
     this.setCategoryFilterSelection(this.rootCategoryList, catInSelection, catNotInSelection);
 
     // colors
 
-    let colorInSelection: string[] = this.setColorFilterSelection(this.colorList);
+    const colorInSelection: string[] = this.setColorFilterSelection(this.colorList);
 
     // price
-    let pricesInSelection: number[][] = this.setPriceFilterSelection(this.priceList);
+    const pricesInSelection: number[][] = this.setPriceFilterSelection(this.priceList);
 
     // query
     let jsonObj = {};
@@ -160,14 +162,18 @@ export class FilterComponent implements OnInit {
           ]
         });
       });
+
+      // Introducing "$or" means we need to combine with an "$and" for the other conditions
+      const auxObj = { $and: [] };
+
+      auxObj.$and.push(
+        { "'metadata.categories": jsonObj['metadata.categories'], 'metadata.color': jsonObj['metadata.color'] },
+        { $or: jsonObj['$or'] }
+      );
+      jsonObj = auxObj;
     }
 
     const query = encodeURIComponent(JSON.stringify(jsonObj));
     this.selectedFilters.emit(query);
-  }
-
-  /** just something to avoid alphabetical ordering of the priceList collection */
-  returnZero() {
-    return 0;
   }
 }

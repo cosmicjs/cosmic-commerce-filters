@@ -13,5 +13,8 @@
             <app-actions [product]="product"></app-actions>
           </div>
   </ng-container>
+  <div *ngIf="productList.length === 0">
+    <span>There are no products that match your search, try something else.</span>
+  </div>
 </div>
 </div>

@@ -22,6 +22,8 @@ export class ProductListingComponent implements OnInit {
   }
 
   onChangeFilters(selectedFilters: string) {
-    this.cosmicService.getProductsByQuery(selectedFilters).subscribe(products => (this.productList = products));
+    this.cosmicService.getProductsByQuery(selectedFilters).subscribe(products => {
+      this.productList = products ? products : [];
+    });
   }
 }

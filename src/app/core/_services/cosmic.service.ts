@@ -91,7 +91,9 @@ export class CosmicService {
       const response = this.http.get<Product[]>(this.productObjectsUrl + '&sort=random' + querystring).pipe(
         tap(_ => console.log('fetched products')),
         map(_ => {
-          return _['objects'].map(element => new Product(element));
+          if (_['objects']) {
+            return _['objects'].map(element => new Product(element));
+          }
         }),
         shareReplay(1),
         catchError(this.handleError('getProducts', []))

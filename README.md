@@ -3,7 +3,7 @@
 ![Ecommerce App with Personalization using Angular and Cosmic](https://imgix.cosmicjs.com/e89a72b0-1d4f-11eb-8ec3-0f4c230fe58a-cosmic-commerce-filters.png?w=2000)
 ### [View Demo](https://www.cosmicjs.com/apps/ecommerce-personalization-with-filters/demo)
 
-This repository showcases the use of Angular with [Cosmic](cosmicjs.com), a headless CMS service, to create a ecommerce website customization sample. More information in [this article](https://www.cosmicjs.com/articles/build-an-ecommerce-product-filter-using-angular-and-cosmic)
+This repository showcases the use of Angular with [Cosmic](cosmicjs.com), a headless CMS service, to create a ecommerce website customization sample. More information in [this article](https://www.cosmicjs.com/articles/build-a-headless-ecommerce-product-filter-using-angular-and-cosmic)
 
 ## How to install
 1. Install demo content via the Cosmic website:
